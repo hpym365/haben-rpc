@@ -11,8 +11,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.codec.LengthFieldPrepender;
-import io.netty.handler.codec.string.StringDecoder;
-import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.concurrent.DefaultThreadFactory;
 
 /**
@@ -33,8 +31,8 @@ public class RpcServer {
 		bootstrap.childHandler(new ChannelInitializer<NioSocketChannel>() {
 			@Override
 			protected void initChannel(NioSocketChannel channel) throws Exception {
-				channel.pipeline().addLast("LengthFieldBasedFrameDecoder", new LengthFieldBasedFrameDecoder(65535, 0, 4, 0, 4));
-				channel.pipeline().addLast("LengthFieldPrepender", new LengthFieldPrepender(4));
+				channel.pipeline().addLast("LengthFieldBasedFrameDecoder", new LengthFieldBasedFrameDecoder(65535, 0, 2, 0, 2));
+				channel.pipeline().addLast("LengthFieldPrepender", new LengthFieldPrepender(2));
 				channel.pipeline().addLast("RpcDecoder", new RpcDecoder());
 				channel.pipeline().addLast("RpcEncoder", new RpcEncoder());
 				channel.pipeline().addLast("handler", new ChannelInboundHandlerAdapter() {
@@ -52,16 +50,12 @@ public class RpcServer {
 			}
 		});
 		bootstrap.bind(port);
-//		try {
-//
-//		} catch (InterruptedException e) {
-//			e.printStackTrace();
-//		}
 	}
 
 	public void start() {
 		try {
 			bootstrap.register().sync();
+//			BannerUtils.printBanner();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
