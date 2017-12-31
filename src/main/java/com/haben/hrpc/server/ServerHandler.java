@@ -1,7 +1,11 @@
 package com.haben.hrpc.server;
 
+import com.haben.hrpc.entity.RpcResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 /**
  * @Author: Haben
@@ -11,11 +15,27 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  **/
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
+	Executor executor = Executors.newFixedThreadPool(16);
+
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		ServiceDispatcher serviceDispatcher = ServiceDispatcher.getInstance();
-		Object res = serviceDispatcher.dispatch(msg);
-		ctx.writeAndFlush(res);
+	public void channelRead(ChannelHandlerContext ctx, Object msg)  {
+		executor.execute(new Runnable() {
+			@Override
+			public void run() {
+				ServiceDispatcher serviceDispatcher = ServiceDispatcher.getInstance();
+				Object res = null;
+				try {
+					res = serviceDispatcher.dispatch(msg);
+					RpcResponse response = (RpcResponse)res;
+					System.out.println("res:"+response.getResult());
+				} catch (NoSuchMethodException e) {
+					e.printStackTrace();
+				}
+				System.out.println("ctx.writeAndFlush :"+Thread.currentThread().getName());
+				ctx.writeAndFlush(res);
+			}
+		});
+
 
 //		System.out.println(msg);
 ////		ctx.writeAndFlush("服务器收到了");

@@ -27,7 +27,7 @@ public class HabenRpcApplication implements CommandLineRunner {
 	@Override
 	public void run(String... args) {
 		RpcServer rpcServer = new RpcServer(port);
-		rpcServer.start();
 		System.out.println("rpc server is running");
+
 	}
 }

@@ -1,6 +1,8 @@
 package com.haben.hrpc.server;
 
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -14,23 +16,25 @@ import io.netty.util.concurrent.DefaultThreadFactory;
 public class RpcServer {
 
 	private ServerBootstrap bootstrap = new ServerBootstrap();
-	private NioEventLoopGroup boss = new NioEventLoopGroup(1, new DefaultThreadFactory("boss"));
-	private NioEventLoopGroup worker = new NioEventLoopGroup(2, new DefaultThreadFactory("worker"));
+	private NioEventLoopGroup boss = new NioEventLoopGroup(2, new DefaultThreadFactory("boss"));
+	private NioEventLoopGroup worker = new NioEventLoopGroup(50, new DefaultThreadFactory("workersssss"));
 
 	public RpcServer(int port) {
 		bootstrap.group(boss, worker);
 		bootstrap.channel(NioServerSocketChannel.class);
-		bootstrap.childHandler(new ServerChannelInitializer());
-		bootstrap.bind(port);
-	}
-
-	public void start() {
+		bootstrap.childHandler(new ServerChannelInitializer())
+				.option(ChannelOption.SO_BACKLOG, 128)
+				.childOption(ChannelOption.SO_KEEPALIVE, true);;
+		ChannelFuture channelFuture = null;
 		try {
-			bootstrap.register().sync();
+			channelFuture = bootstrap.bind(port).sync();
 		} catch (Exception e) {
 			e.printStackTrace();
 			boss.shutdownGracefully();
 			worker.shutdownGracefully();
+			if (channelFuture != null) {
+				channelFuture.channel().closeFuture();
+			}
 		}
 	}
 }
