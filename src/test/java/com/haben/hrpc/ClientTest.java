@@ -1,11 +1,8 @@
 package com.haben.hrpc;
 
-import com.haben.hrpc.client.RpcClient;
 import com.haben.hrpc.demo.HelloService;
 import com.haben.hrpc.proxy.ServiceProxy;
 import io.netty.util.concurrent.DefaultThreadFactory;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,7 +20,7 @@ public class ClientTest {
 	static class Tt extends Thread {
 		@Override
 		public void run() {
-			RpcClient rpcClient = new RpcClient("127.0.0.1", 1234);
+//			RpcClient rpcClient = new RpcClient("127.0.0.1", 1234);
 
 			HelloService helloService = ServiceProxy.create(HelloService.class);
 //		System.out.println("hello:"+helloService);
@@ -37,38 +34,51 @@ public class ClientTest {
 	}
 
 	public static void main(String[] args) throws InterruptedException {
-		LogManager.resetConfiguration();
-		PropertyConfigurator.configure("/Users/hpym365/IdeaProjects/haben-rpc/src/main/resources/log4j.properties");
-		RpcClient rpcClient = new RpcClient("127.0.0.1", 1234);
+//		LogManager.resetConfiguration();
+//		PropertyConfigurator.configure("/Users/hpym365/IdeaProjects/haben-rpc/src/main/resources/log4j.properties");
+//		RpcClient rpcClient = new RpcClient("192.168.0.101", 1234);
 
+		//单次测试 ...
+		HelloService helloService = ServiceProxy.create(HelloService.class);
+		String c = helloService.say("p3");
+		System.out.println("helloService.say:" + c);
+
+
+		//精神病一般的测试
 		Thread.sleep(1000);
+		// 500 46sec    200 41sec   100 35sec   server 200
+		//     100 38sec
 		Executor executor = new ThreadPoolExecutor(
-				100,
-				100,
+				500,
+				500,
 				5,
-				TimeUnit.SECONDS,new ArrayBlockingQueue<>(10000),
+				TimeUnit.SECONDS, new ArrayBlockingQueue<>(10000),
 				new DefaultThreadFactory("clientTest"));
 		long begin = System.currentTimeMillis();
 
 		int all = 10000;
 
-		CountDownLatch countDownLatch = new CountDownLatch(all);
-		for (int i = 0; i < all; i++) {
-			executor.execute(new Runnable() {
-				@Override
-				public void run() {
-					HelloService helloService = ServiceProxy.create(HelloService.class);
-					String c = helloService.say("p3");
-					System.out.println("helloService.say:"+c);
-					countDownLatch.countDown();
-
-				}
-			});
+		for (int k = 0; k < 1; k++) {
+			CountDownLatch countDownLatch = new CountDownLatch(all);
+			for (int i = 0; i < all; i++) {
+				executor.execute(new Runnable() {
+					@Override
+					public void run() {
+						HelloService helloService = ServiceProxy.create(HelloService.class);
+						String c = helloService.say("p3");
+						System.out.println("helloService.say:" + c);
+						countDownLatch.countDown();
+					}
+				});
+			}
+			countDownLatch.await();
+			System.out.println(System.currentTimeMillis() - begin);
+			Thread.sleep(2000);
 		}
-		countDownLatch.await();
-		System.out.println(System.currentTimeMillis() - begin);
 
 		log.debug("测试一下");
+
+
 //		Thread t1 = new Tt();
 //		Thread t2 = new Tt();
 //		Thread t3 = new Tt();

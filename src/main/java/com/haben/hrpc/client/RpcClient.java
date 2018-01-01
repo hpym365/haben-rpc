@@ -4,9 +4,6 @@ import io.netty.bootstrap.Bootstrap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 /**
  * @Author: Haben
  * @Description:
@@ -19,11 +16,12 @@ public class RpcClient {
 	private int retry = 0;
 	private final int MAX_RETRY = 100;
 
-	public static Map<String,ClientHandler> handlerMap = new ConcurrentHashMap<>();
 
-	public RpcClient(String ip, int port) {
-		ClientConnection instance = ClientConnection.getInstance();
-		instance.setInetSocketAddress(ip,port);
+//	public static Map<String,ClientHandler> handlerMap = new ConcurrentHashMap<>();
+
+	public RpcClient() {
+//		ClientConnection instance = ClientConnection.getInstance();
+////		instance.setInetSocketAddress(ip,port);
 	}
 
 }

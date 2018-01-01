@@ -36,7 +36,7 @@ public class ServiceProxy<T> implements InvocationHandler {
 //		System.out.println("调用invoke 啦啦啦");
 //		ClientHandler clientHandler = new ClientHandler();
 		RpcRequest request = new RpcRequest();
-		request.setRequestId("client:"+UUID.randomUUID().toString());
+		request.setRequestId(UUID.randomUUID().toString());
 		request.setClassName(method.getDeclaringClass().getName());
 		request.setMethodName(method.getName());
 		request.setParameterTypes(method.getParameterTypes());
@@ -44,6 +44,10 @@ public class ServiceProxy<T> implements InvocationHandler {
 //		System.out.println("request id :"+request.getRequestId());
 
 		ClientHandler clientHandler = ClientConnection.getInstance().getClientHandler();
+		//没有可用的服务
+		if (clientHandler == null) {
+			return null;
+		}
 		clientHandler.send(request);
 		Object rpcRes = clientHandler.getRpcRes(request);
 		return rpcRes;

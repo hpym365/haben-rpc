@@ -1,6 +1,6 @@
 package com.haben.hrpc;
 
-import com.haben.hrpc.config.ThreadPoolConstant;
+import com.haben.hrpc.config.SysConstant;
 import com.haben.hrpc.server.RpcServer;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.config.RequestConfig;
@@ -54,8 +54,8 @@ public class HabenRpcApplication implements CommandLineRunner {
 				.register("https", SSLConnectionSocketFactory.getSocketFactory())
 				.build();
 		PoolingHttpClientConnectionManager connectionManager = new PoolingHttpClientConnectionManager(registry);
-		connectionManager.setMaxTotal(ThreadPoolConstant.MAX_THREAD);
-		connectionManager.setDefaultMaxPerRoute(ThreadPoolConstant.MAX_THREAD);
+		connectionManager.setMaxTotal(SysConstant.MAX_THREAD);
+		connectionManager.setDefaultMaxPerRoute(SysConstant.MAX_THREAD);
 
 		RequestConfig requestConfig = RequestConfig.custom()
 				.setSocketTimeout(2000)

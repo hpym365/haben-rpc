@@ -4,8 +4,10 @@ import com.haben.hrpc.annotation.RpcService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.client.RestTemplate;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * @Author: Haben
@@ -20,7 +22,7 @@ public class HelloServiceImpl implements HelloService {
 	private RestTemplate restTemplate;
 
 	@Override
-	public String say(String str)  {
+	public String say(String str) {
 //		System.out.println("client say:" + str);
 		String targetUrl = "http://www.cnblogs.com/";
 
@@ -44,11 +46,15 @@ public class HelloServiceImpl implements HelloService {
 //		}
 		long begin = System.currentTimeMillis();
 		try {
-			String res = restTemplate.getForObject(new URI(targetUrl), String.class);
-			System.out.println("restTemplate.getForObject time :"+(System.currentTimeMillis()-begin));
-
+//			String res = restTemplate.getForObject(new URI(targetUrl), String.class);
+//			System.out.println("restTemplate.getForObject time :"+(System.currentTimeMillis()-begin));
+			Lock lock = new ReentrantLock();
+			Condition condition = lock.newCondition();
+			lock.lock();
+			condition.await(500, TimeUnit.MILLISECONDS);
+			lock.unlock();
 			return "okokok";
-		} catch (URISyntaxException e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 			return "nonono";
 		}

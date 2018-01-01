@@ -4,7 +4,7 @@ import com.haben.hrpc.entity.RpcRequest;
 import com.haben.hrpc.entity.RpcResponse;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.Map;
 import java.util.concurrent.*;
@@ -15,7 +15,7 @@ import java.util.concurrent.*;
  * @Date: 2017-12-31 11:55
  * @Version: 1.0
  **/
-public class ClientHandler extends ChannelInboundHandlerAdapter {
+public class ClientHandler extends SimpleChannelInboundHandler {
 
 	private Channel channel;
 
@@ -35,10 +35,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		System.out.println("client active");
 	}
 
-	Executor executor = Executors.newFixedThreadPool(20);
+
 	@Override
-	public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-		executor.execute(new Runnable() {
+	protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+		ClientConnection.channelReadThreadPool.execute(new Runnable() {
 			@Override
 			public void run() {
 				if (msg instanceof RpcResponse) {
@@ -64,6 +64,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 		});
 	}
 
+	Executor sendExecutor = Executors.newFixedThreadPool(10);
 	public void send(Object o) {
 		CountDownLatch countDownLatch = new CountDownLatch(1);
 		if (o instanceof RpcRequest) {
@@ -72,8 +73,12 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 			rpcCountDown.put(requestId, countDownLatch);
 			System.out.println("发送 send:"+Thread.currentThread().getName());
 //			System.out.println("发送请求123 内容为:" + request.getMethodName());
-			channel.writeAndFlush(o);
-
+			sendExecutor.execute(new Runnable() {
+				@Override
+				public void run() {
+					channel.writeAndFlush(o);
+				}
+			});
 		}
 	}
 
