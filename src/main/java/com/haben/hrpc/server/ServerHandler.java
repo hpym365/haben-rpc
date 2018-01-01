@@ -1,11 +1,15 @@
 package com.haben.hrpc.server;
 
+import com.haben.hrpc.config.ThreadPoolConstant;
 import com.haben.hrpc.entity.RpcResponse;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.concurrent.DefaultThreadFactory;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: Haben
@@ -15,7 +19,10 @@ import java.util.concurrent.Executors;
  **/
 public class ServerHandler extends ChannelInboundHandlerAdapter {
 
-	Executor executor = Executors.newFixedThreadPool(16);
+//	Executor executor = Executors.newFixedThreadPool(200);
+	Executor executor = new ThreadPoolExecutor(ThreadPoolConstant.MAX_THREAD,ThreadPoolConstant.MAX_THREAD,5,
+			TimeUnit.SECONDS,new ArrayBlockingQueue<>(1000),
+			new DefaultThreadFactory("ServerHandler-pool"));
 
 	@Override
 	public void channelRead(ChannelHandlerContext ctx, Object msg)  {
@@ -27,7 +34,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
 				try {
 					res = serviceDispatcher.dispatch(msg);
 					RpcResponse response = (RpcResponse)res;
-					System.out.println("res:"+response.getResult());
+					System.out.println("res:"+response.getResult()==null?response.getMsg():response.getResult());
 				} catch (NoSuchMethodException e) {
 					e.printStackTrace();
 				}

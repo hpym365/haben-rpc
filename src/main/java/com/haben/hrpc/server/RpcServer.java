@@ -17,7 +17,7 @@ public class RpcServer {
 
 	private ServerBootstrap bootstrap = new ServerBootstrap();
 	private NioEventLoopGroup boss = new NioEventLoopGroup(2, new DefaultThreadFactory("boss"));
-	private NioEventLoopGroup worker = new NioEventLoopGroup(50, new DefaultThreadFactory("workersssss"));
+	private NioEventLoopGroup worker = new NioEventLoopGroup(2, new DefaultThreadFactory("workersssss"));
 
 	public RpcServer(int port) {
 		bootstrap.group(boss, worker);

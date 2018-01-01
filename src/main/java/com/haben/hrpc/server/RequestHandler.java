@@ -31,15 +31,16 @@ public class RequestHandler implements IHandler {
 			e.printStackTrace();
 		}
 		System.out.println("method:" + method);
+
+		RpcResponse rpcResponse = new RpcResponse();
+		rpcResponse.setRequestId(requestId);
 		Object invoke = null;
 		try {
 			invoke = method.invoke(service, parameters);
 		} catch (Throwable throwable) {
-			throwable.printStackTrace();
+			rpcResponse.setMsg("throwable error:"+throwable.toString());
+			return rpcResponse;
 		}
-
-		RpcResponse rpcResponse = new RpcResponse();
-		rpcResponse.setRequestId(requestId);
 		rpcResponse.setResult(invoke);
 		return rpcResponse;
 	}

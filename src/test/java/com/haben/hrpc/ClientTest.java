@@ -3,13 +3,13 @@ package com.haben.hrpc;
 import com.haben.hrpc.client.RpcClient;
 import com.haben.hrpc.demo.HelloService;
 import com.haben.hrpc.proxy.ServiceProxy;
+import io.netty.util.concurrent.DefaultThreadFactory;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 /**
  * @Author: Haben
@@ -42,21 +42,31 @@ public class ClientTest {
 		RpcClient rpcClient = new RpcClient("127.0.0.1", 1234);
 
 		Thread.sleep(1000);
-		Executor executor = Executors.newFixedThreadPool(10);
+		Executor executor = new ThreadPoolExecutor(
+				100,
+				100,
+				5,
+				TimeUnit.SECONDS,new ArrayBlockingQueue<>(10000),
+				new DefaultThreadFactory("clientTest"));
 		long begin = System.currentTimeMillis();
 
-		for (int i = 0; i < 100; i++) {
+		int all = 10000;
+
+		CountDownLatch countDownLatch = new CountDownLatch(all);
+		for (int i = 0; i < all; i++) {
 			executor.execute(new Runnable() {
 				@Override
 				public void run() {
 					HelloService helloService = ServiceProxy.create(HelloService.class);
 					String c = helloService.say("p3");
 					System.out.println("helloService.say:"+c);
+					countDownLatch.countDown();
+
 				}
 			});
 		}
+		countDownLatch.await();
 		System.out.println(System.currentTimeMillis() - begin);
-
 
 		log.debug("测试一下");
 //		Thread t1 = new Tt();

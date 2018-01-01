@@ -68,7 +68,7 @@ public class ClientConnection {
 
 		ClientHandler ch = null;
 		// 要修改的 lb
-		System.out.println("handlerMap:"+handlerMap.size());
+		System.out.println("handlerMap:"+handlerMap.size()+"  thread:"+Thread.currentThread().getName());
 		for (ClientHandler clientHandler : handlerMap.values()) {
 			ch = clientHandler;
 		}
@@ -78,7 +78,7 @@ public class ClientConnection {
 
 	public Channel connect() throws InterruptedException {
 		Channel channel = null;
-		NioEventLoopGroup clientWorker = new NioEventLoopGroup(2, new DefaultThreadFactory("clientWorkerccc"));
+		NioEventLoopGroup clientWorker = new NioEventLoopGroup(2, new DefaultThreadFactory("clientWorker"));
 		try {
 			Bootstrap bootstrap = new Bootstrap();
 			bootstrap.group(clientWorker);
