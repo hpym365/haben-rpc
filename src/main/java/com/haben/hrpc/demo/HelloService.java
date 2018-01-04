@@ -9,4 +9,7 @@ package com.haben.hrpc.demo;
 public interface HelloService {
 
 	public String say(String str);
+	public String say500(String str);
+	public String say200(String str);
+	public String say1(String str);
 }

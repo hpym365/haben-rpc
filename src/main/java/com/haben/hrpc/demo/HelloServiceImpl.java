@@ -23,31 +23,14 @@ public class HelloServiceImpl implements HelloService {
 
 	@Override
 	public String say(String str) {
-//		System.out.println("client say:" + str);
-		String targetUrl = "http://www.cnblogs.com/";
+		return "okok";
+	}
 
-//		// 1.建立HttpClient对象
-//		CloseableHttpClient client = HttpClients.createDefault();
-//		// 2.建立Get请求
-//		HttpGet get = new HttpGet(targetUrl);
-//		// 3.发送Get请求
-//		System.out.println("执行了 impl:"+Thread.currentThread().getName());
-//		URI uri = new URI(targetUrl);
-//
-//		try {
-//			CloseableHttpResponse res = client.e
-//			if(res.getStatusLine().getStatusCode() == HttpStatus.SC_OK){
-//				return "okokok";
-//			}else {
-//				return "nonono";
-//			}
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
+	@Override
+	public String say500(String str) {
+
 		long begin = System.currentTimeMillis();
 		try {
-//			String res = restTemplate.getForObject(new URI(targetUrl), String.class);
-//			System.out.println("restTemplate.getForObject time :"+(System.currentTimeMillis()-begin));
 			Lock lock = new ReentrantLock();
 			Condition condition = lock.newCondition();
 			lock.lock();
@@ -58,8 +41,39 @@ public class HelloServiceImpl implements HelloService {
 			e.printStackTrace();
 			return "nonono";
 		}
+	}
 
+	@Override
+	public String say200(String str) {
 
-//		return "buzhidao";
+		long begin = System.currentTimeMillis();
+		try {
+			Lock lock = new ReentrantLock();
+			Condition condition = lock.newCondition();
+			lock.lock();
+			condition.await(200, TimeUnit.MILLISECONDS);
+			lock.unlock();
+			return "okokok";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "nonono";
+		}
+	}
+
+	@Override
+	public String say1(String str) {
+
+		long begin = System.currentTimeMillis();
+		try {
+			Lock lock = new ReentrantLock();
+			Condition condition = lock.newCondition();
+			lock.lock();
+			condition.await(1, TimeUnit.MILLISECONDS);
+			lock.unlock();
+			return "okokok";
+		} catch (Exception e) {
+			e.printStackTrace();
+			return "nonono";
+		}
 	}
 }
