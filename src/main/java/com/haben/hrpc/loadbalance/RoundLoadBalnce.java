@@ -10,7 +10,7 @@ import java.util.*;
  * @Date: 2017-12-25 上午11:12
  * @Version: 1.0
  **/
-public class RoundLoadBalnce implements ILoadBalance{
+public class RoundLoadBalnce implements ILoadBalance {
 
 	private static Integer pos = 0;
 
@@ -26,7 +26,6 @@ public class RoundLoadBalnce implements ILoadBalance{
 		ClientHandler clientHandler;
 		synchronized (this) {
 			if (pos >= keySet.size()) {
-				System.out.println("keySet.size() -pos- keyList.size():"+keySet.size()+"-"+pos+"-"+keyList.size());
 				pos = 0;
 			}
 			clientHandler = keyList.get(pos);

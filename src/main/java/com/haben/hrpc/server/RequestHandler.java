@@ -12,6 +12,12 @@ import java.lang.reflect.Method;
  * @Version: 1.0
  **/
 public class RequestHandler implements IHandler {
+	ThreadLocal<RpcResponse> threadLocalRpcResponse = new ThreadLocal<RpcResponse>(){
+		@Override
+		protected RpcResponse initialValue() {
+			return   new RpcResponse();
+		}
+	};
 	@Override
 	public Object invoke(Object msg) {
 		RpcRequest request = (RpcRequest) msg;
@@ -30,18 +36,24 @@ public class RequestHandler implements IHandler {
 		} catch (NoSuchMethodException e) {
 			e.printStackTrace();
 		}
-		System.out.println("method:" + method);
 
-		RpcResponse rpcResponse = new RpcResponse();
+		// new RpcResponse();10825  10341   50w 42948 42655  42171
+		//request 修改了tl之后   50w    42438
+		RpcResponse rpcResponse =threadLocalRpcResponse.get();
+
+		//10136 10375     50w   43147  44816 44715
+//		RpcResponse rpcResponse = new RpcResponse();
 		rpcResponse.setRequestId(requestId);
 		Object invoke = null;
 		try {
 			invoke = method.invoke(service, parameters);
 		} catch (Throwable throwable) {
 			rpcResponse.setMsg("throwable error:"+throwable.toString());
+			System.out.println("===================");
 			return rpcResponse;
 		}
 		rpcResponse.setResult(invoke);
+		System.out.println("request handler request:"+request.getRequestId());
 		return rpcResponse;
 	}
 }

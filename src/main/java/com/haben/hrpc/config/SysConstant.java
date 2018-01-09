@@ -7,7 +7,7 @@ package com.haben.hrpc.config;
  * @Version: 1.0
  **/
 public class SysConstant {
-	public static final int MAX_THREAD = 500;
+	public static final int MAX_THREAD = 700;
 	public static final String ZK_PATH = "/hrpc";
 	public static final String ZK_URL = "127.0.0.1:2181";
 }

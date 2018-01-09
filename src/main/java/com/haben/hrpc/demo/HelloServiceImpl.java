@@ -68,7 +68,7 @@ public class HelloServiceImpl implements HelloService {
 			Lock lock = new ReentrantLock();
 			Condition condition = lock.newCondition();
 			lock.lock();
-			condition.await(1, TimeUnit.MILLISECONDS);
+			condition.await(50, TimeUnit.MILLISECONDS);
 			lock.unlock();
 			return "okokok";
 		} catch (Exception e) {

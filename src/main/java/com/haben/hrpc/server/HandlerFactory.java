@@ -15,7 +15,24 @@ public class HandlerFactory {
 			handler = new RequestHandler();
 		}
 
-
 		return handler;
 	}
+
+
+	//不用单例 前面缓存了- -
+//	public static IHandler createHandler(Object msg) {
+//		IHandler handler = null;
+//		if (msg instanceof RpcRequest) {
+//			if (requestHandler == null) {
+//				synchronized (HandlerFactory.class) {
+//					if (requestHandler == null) {
+//						requestHandler = new RequestHandler();
+//					}
+//				}
+//			}
+//			return requestHandler;
+//		}
+//
+//		return handler;
+//	}
 }

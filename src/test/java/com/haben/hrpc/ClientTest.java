@@ -1,5 +1,6 @@
 package com.haben.hrpc;
 
+import com.haben.hrpc.config.SysConstant;
 import com.haben.hrpc.demo.HelloService;
 import com.haben.hrpc.proxy.ServiceProxy;
 import io.netty.util.concurrent.DefaultThreadFactory;
@@ -49,14 +50,14 @@ public class ClientTest {
 		// 500 46sec    200 41sec   100 35sec   server 200
 		//     100 38sec
 		Executor executor = new ThreadPoolExecutor(
-				500,
-				500,
+				SysConstant.MAX_THREAD,
+				SysConstant.MAX_THREAD,
 				5,
-				TimeUnit.SECONDS, new ArrayBlockingQueue<>(10000),
+				TimeUnit.SECONDS, new ArrayBlockingQueue<>(1000000),
 				new DefaultThreadFactory("clientTest"));
 		long begin = System.currentTimeMillis();
 
-		int all = 10000;
+		int all = 500000;
 
 		for (int k = 0; k < 1; k++) {
 			CountDownLatch countDownLatch = new CountDownLatch(all);
@@ -65,8 +66,8 @@ public class ClientTest {
 					@Override
 					public void run() {
 						HelloService helloService = ServiceProxy.create(HelloService.class);
-						String c = helloService.say("p3");
-						System.out.println("helloService.say:" + c);
+						String c = helloService.say1("p3");
+//						System.out.println("helloService.say:" + c);
 						countDownLatch.countDown();
 					}
 				});

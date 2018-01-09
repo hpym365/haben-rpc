@@ -38,6 +38,10 @@ public class ClientConnection {
 	public static Executor channelReadThreadPool = new ThreadPoolExecutor(20, 20, 100,
 			TimeUnit.SECONDS, new ArrayBlockingQueue<>(10000), new DefaultThreadFactory("channelRead0"));
 
+	public static Executor executor = new ThreadPoolExecutor(SysConstant.MAX_THREAD, SysConstant.MAX_THREAD, 5,
+			 TimeUnit.SECONDS, new ArrayBlockingQueue<>(1000000),
+			new DefaultThreadFactory("ServerHandler-pool"));
+
 	private ILoadBalance loadBalance = null;
 
 	public static Map<ClientHandler, Integer> handlerMap = new ConcurrentHashMap<>();
@@ -73,6 +77,8 @@ public class ClientConnection {
 	//	public void setInetSocketAddress(String ip, int port) {
 //		this.inetSocketAddress = new InetSocketAddress(ip, port);
 //	}
+
+	private static ClientHandler clientHandlerTest = null;
 	public ClientHandler getClientHandler() {
 		if (handlerMap.size() == 0) {
 			log.error("handlerMap size is 0,no provider...Start server first!");
@@ -83,7 +89,14 @@ public class ClientConnection {
 			loadBalance = LoadBalanceFactory.getLoadBalance(LoadBalanceFactory.LB_TYPE.ROUND);
 		}
 
-		return loadBalance.getClientHandler(handlerMap);
+		if(clientHandlerTest==null){
+			for (ClientHandler clientHandler : handlerMap.keySet()) {
+				clientHandlerTest = clientHandler;
+			}
+		}
+
+
+		return clientHandlerTest;//loadBalance.getClientHandler(handlerMap);
 	}
 
 	private void initHanlderMap(ServiceDiscover serviceDiscover) {

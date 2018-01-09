@@ -1,5 +1,6 @@
 package com.haben.hrpc.server;
 
+import com.haben.hrpc.client.ClientConnection;
 import com.haben.hrpc.config.SysConstant;
 import com.haben.hrpc.entity.RpcResponse;
 import io.netty.channel.ChannelHandlerContext;
@@ -20,13 +21,11 @@ import java.util.concurrent.TimeUnit;
 public class ServerHandler extends SimpleChannelInboundHandler {
 
 //	Executor executor = Executors.newFixedThreadPool(200);
-	Executor executor = new ThreadPoolExecutor(SysConstant.MAX_THREAD,SysConstant.MAX_THREAD,5,
-			TimeUnit.SECONDS,new ArrayBlockingQueue<>(1000),
-			new DefaultThreadFactory("ServerHandler-pool"));
+
 
 	@Override
 	public void channelRead0(ChannelHandlerContext ctx, Object msg)  {
-		executor.execute(new Runnable() {
+		ClientConnection.executor.execute(new Runnable() {
 			@Override
 			public void run() {
 				ServiceDispatcher serviceDispatcher = ServiceDispatcher.getInstance();
@@ -34,12 +33,16 @@ public class ServerHandler extends SimpleChannelInboundHandler {
 				try {
 					res = serviceDispatcher.dispatch(msg);
 					RpcResponse response = (RpcResponse)res;
-					System.out.println("res:"+response.getResult()==null?response.getMsg():response.getResult());
+//					System.out.println("res:"+response.getResult()==null?response.getMsg():response.getResult());
 				} catch (NoSuchMethodException e) {
 					e.printStackTrace();
 				}
-				System.out.println("ctx.writeAndFlush :"+Thread.currentThread().getName());
-				ctx.writeAndFlush(res);
+//				System.out.println("ctx.writeAndFlush :"+Thread.currentThread().getName()+"  "+res);
+		try {
+			ctx.writeAndFlush(res).sync();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 			}
 		});
 
